@@ -69,6 +69,8 @@ function initServerWebSocket(serverHTTP) {
         })
 
         socket.on("disconnect", reason => {
+            socket.to(socket.userID).emit("online status update", false)
+
             console.log("WebSocketServer")
             console.log("Event: Disconnect")
             console.log("UserID: ", socket.userID)
@@ -76,6 +78,31 @@ function initServerWebSocket(serverHTTP) {
             console.log("\n")
 
             updatePresence(socket.userID, "offline")
+        })
+
+        socket.on("join room", room => {
+            socket.join(room)
+        })
+
+        socket.on("online status update", status => {
+            socket.to(socket.userID).emit("online status update", status)
+        })
+
+        socket.on("online status enquiry", async (userID) => {
+            try {
+                const sockets = await io.fetchSockets()
+                const recipientSocket = sockets.find(s => s.userID === userID)
+                if (recipientSocket) {
+                    io.to(socket.id).emit("online status update", true)
+                } else {
+                    io.to(socket.id).emit("online status update", false)
+                }
+            } catch (error) {
+                console.log("WebSocketServer")
+                console.log("Event: typing")
+                console.log("Error: ", error)
+                console.log("\n")
+            }
         })
     })
 }
