@@ -1,4 +1,5 @@
 const { Server } = require("socket.io")
+const axios = require("axios")
 
 function initServerWebSocket(serverHTTP) {
     const io = new Server(serverHTTP, {
@@ -19,7 +20,8 @@ function initServerWebSocket(serverHTTP) {
 
         socket.on("private_message", async (message, room) => {
             try {
-               await storeMessage(message)
+               const response = await storeMessage(message)
+               console.log(response)
 
                socket.to(room).emit("private_message", message)
             } catch (error) {
@@ -77,7 +79,7 @@ function initServerWebSocket(serverHTTP) {
 }
 
 async function storeMessage(message) {
-    return Promise.resolve("Message stored")
+    return axios.post("http://192.168.1.69:4000/api/messages", message)
 }
 
 module.exports = initServerWebSocket
