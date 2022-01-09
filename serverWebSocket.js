@@ -21,7 +21,6 @@ function initServerWebSocket(serverHTTP) {
         socket.on("private_message", async (message, room) => {
             try {
                const response = await storeMessage(message)
-               console.log(response)
 
                socket.to(room).emit("private_message", message)
             } catch (error) {
