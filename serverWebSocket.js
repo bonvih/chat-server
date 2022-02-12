@@ -1,6 +1,12 @@
 const { Server } = require("socket.io");
 const axios = require("axios");
 
+const apiServerHost = process.env.API_SERVER_HOST
+
+if (!apiServerHost) {
+  throw new Error("Missing API_SERVER_HOST env")
+}
+
 function initServerWebSocket(serverHTTP) {
   const io = new Server(serverHTTP, {
     cors: {
@@ -78,7 +84,8 @@ function initServerWebSocket(serverHTTP) {
 }
 
 async function storeMessage(message) {
-  return axios.post("http://192.168.1.70:4000/api/messages", message);
+
+  return axios.post("http://"+apiServerHost+"/api/messages", message);
 }
 
 module.exports = initServerWebSocket;
