@@ -3,8 +3,8 @@ const {createServer} = require("http")
 const cors = require("cors")
 const WebServiceClient = require("@maxmind/geoip2-node").WebServiceClient
 
-const geoipAccountID = ''
-const geoipLicenseKey = ''
+const geoipAccountID = '677568'
+const geoipLicenseKey = 'UllpLex53WTHVtbd'
 
 const geoipClient = new WebServiceClient(geoipAccountID, geoipLicenseKey)
 
