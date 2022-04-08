@@ -24,11 +24,17 @@ function initServerWebSocket(serverHTTP) {
       socket.join(room);
     });
 
-    socket.on("private_message", async (message, room) => {
+    socket.on("private_message", async (message, otherUserID, room) => {
       try {
         const response = await storeMessage(message);
 
-        socket.to(room).emit("private_message", message);
+        // Other user is chatting with me ?
+        if (io.sockets.adapter.rooms.get(room).size > 3) {
+          socket.to(room).emit("private_message", message);
+        } else {
+          await notifyUser(otherUserID, message)
+        }
+
       } catch (error) {
         console.log("WebSocketServer");
         console.log("Event: private message");
@@ -86,6 +92,15 @@ function initServerWebSocket(serverHTTP) {
 async function storeMessage(message) {
 
   return axios.post("http://"+apiServerHost+"/api/messages", message);
+}
+
+async function notifyUser(userID, message) {
+  return axios.post("http://" + apiServerHost + "/api/notify/chat-message", {
+    from: message.profile.ID.toString(),
+    to: userID,
+    message: message.text,
+    proposition: message.proposition.ID.toString()
+  });
 }
 
 module.exports = initServerWebSocket;
