@@ -29,7 +29,6 @@ function initServerWebSocket(serverHTTP) {
         const response = await storeMessage(message);
 
         // Other user is chatting with me ?
-        console.log("Room size: ", io.sockets.adapter.rooms.get(room).size)
         if (io.sockets.adapter.rooms.get(room).size > 1) {
           socket.to(room).emit("private_message", message);
         } else {
