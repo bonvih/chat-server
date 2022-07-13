@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   aws-ecr: circleci/aws-ecr@8.1.2
+  aws-ecs: circleci/aws-ecs@3.0.0
 executors:
   nodejs:
     description: |
@@ -8,7 +9,7 @@ executors:
     docker:
     - image: circleci/node:14.17.6
 jobs:
-  install-deps:
+  install:
     description: install dependencies
     executor: nodejs
     steps:
@@ -27,14 +28,15 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
-      - install-deps:
+      - install:
           filters:
             branches:
               only:
                 - main
+          name: install dependencies
       - aws-ecr/build-and-push-image:
           requires:
-            - install-deps
+            - install dependencies
           attach-workspace: true
           workspace-root: ~/
           repo: chat-server
@@ -42,3 +44,16 @@ workflows:
             branches:
               only:
                 - main
+          name: build and push image
+      - aws-ecs/deploy-service-update:
+          requires:
+            - build and push image
+          cluster: bonvih-cluster 
+          family: chatserver_task 
+          service-name: chat_service 
+          force-new-deployment: true
+          filters:
+            branches:
+              only:
+                - main
+          name: force deployment
