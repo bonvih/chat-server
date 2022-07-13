@@ -12,7 +12,11 @@ if (!process.env.NODE_ENV) {
   console.log(`Environment: ${process.env.NODE_ENV}`);
 }
 
-const httpServer = createServer();
+const httpServer = createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.end(JSON.stringify("Hello from chat server!"));
+});
+
 const io = new Server(httpServer, {
   cors: {
     origin: "*",
