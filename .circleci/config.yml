@@ -1,13 +1,44 @@
 version: 2.1
 orbs:
   aws-ecr: circleci/aws-ecr@8.1.2
+executors:
+  nodejs:
+    description: |
+      Node 14.17.6 runtime environment
+    docker:
+    - image: circleci/node:14.17.6
+jobs:
+  install-deps:
+    description: install dependencies
+    executor: nodejs
+    steps:
+      - checkout
+      - restore_cache:
+          key: 'v1-node-modules-{{ checksum "package-lock.json" }}'
+      - run: npm install
+      - save_cache:
+          key: 'v1-node-modules-{{ checksum "package-lock.json" }}'
+          paths:
+            - ~/project/node_modules
+      - persist_to_workspace:
+          paths:
+            - project
+          root: ~/
 workflows:
   build-and-deploy:
     jobs:
+      - install-deps:
+          filters:
+            branches:
+              only:
+                - main
       - aws-ecr/build-and-push-image:
+          requires:
+            - install-deps
+          attach-workspace: true
+          workspace-root: ~/
           repo: chat-server
           filters:
             branches:
               only:
                 - main
-          name: build and push image
