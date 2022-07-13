@@ -3,6 +3,15 @@ const { Server } = require("socket.io");
 const storeMessage = require("./storeMessage");
 const notifyUser = require("./notifyUser");
 
+let PORT = 80;
+
+if (!process.env.NODE_ENV) {
+  PORT = 5000;
+  console.log("Environment: development");
+} else {
+  console.log(`Environment: ${process.env.NODE_ENV}`);
+}
+
 const httpServer = createServer();
 const io = new Server(httpServer, {
   cors: {
@@ -83,4 +92,4 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(5000);
+httpServer.listen(PORT);
