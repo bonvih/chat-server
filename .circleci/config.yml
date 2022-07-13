@@ -32,7 +32,6 @@ workflows:
             branches:
               only:
                 - main
-          name: install dependencies
       - aws-ecr/build-and-push-image:
           requires:
             - install-deps
@@ -43,4 +42,3 @@ workflows:
             branches:
               only:
                 - main
-          name: build and push image
