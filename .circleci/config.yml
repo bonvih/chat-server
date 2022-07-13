@@ -1,0 +1,13 @@
+version: 2.1
+orbs:
+  aws-ecr: circleci/aws-ecr@8.1.2
+workflows:
+  build-and-deploy:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          repo: chat-server
+          filters:
+            branches:
+              only:
+                - main
+          name: build and push image
