@@ -1,9 +1,16 @@
 version: 2.1
 orbs:
   aws-ecr: circleci/aws-ecr@8.1.2
+executors:
+  nodejs:
+    description: |
+      Node 14.17.6 runtime environment
+    docker:
+    - image: circleci/node:14.17.6
 jobs:
   install-deps:
     description: install dependencies
+    executor: nodejs
     steps:
       - checkout
       - restore_cache:
