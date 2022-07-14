@@ -39,7 +39,7 @@ workflows:
             - install dependencies
           attach-workspace: true
           workspace-root: ~/
-          repo: chat-server
+          repo: chat-image
           filters:
             branches:
               only:
@@ -49,8 +49,8 @@ workflows:
           requires:
             - build and push image
           cluster: bonvih-cluster 
-          family: chatserver_task 
-          service-name: chat_service 
+          family: chat-task-definition 
+          service-name: chat-service 
           force-new-deployment: true
           filters:
             branches:
