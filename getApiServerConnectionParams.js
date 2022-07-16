@@ -16,15 +16,22 @@ async function getApiServerConnectionParams() {
   let HOSTNAME = API_SERVER_HOST;
 
   if (API_SERVICE_DOMAIN) {
-    const dnsResolutionResults = await resolveSrv(API_SERVICE_DOMAIN);
-    const apiContainerHostname = dnsResolutionResults.name;
-    const apiContainerPort = dnsResolutionResults.port;
+    try {
+      const dnsResolutionResults = await resolveSrv(API_SERVICE_DOMAIN);
+      const apiContainerHostname = dnsResolutionResults.name;
+      const apiContainerPort = dnsResolutionResults.port;
 
-    if (!apiContainerHostname || !apiContainerPort) {
-      throw new Error("Could not get api-container hostname and/or port");
+      if (!apiContainerHostname || !apiContainerPort) {
+        console.log(`DnsResolutionResults for ${API_SERVICE_DOMAIN}: `);
+        console.log(dnsResolutionResults);
+
+        throw new Error("Could not get api-container hostname and/or port");
+      }
+
+      HOSTNAME = `${apiContainerHostname}:${apiContainerPort}`;
+    } catch (error) {
+      throw error;
     }
-
-    HOSTNAME = `${apiContainerHostname}:${apiContainerPort}`;
   }
 
   return {
