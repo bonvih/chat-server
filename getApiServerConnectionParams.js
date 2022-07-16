@@ -18,8 +18,13 @@ async function getApiServerConnectionParams() {
   if (API_SERVICE_DOMAIN) {
     try {
       const dnsResolutionResults = await resolveSrv(API_SERVICE_DOMAIN);
-      const apiContainerHostname = dnsResolutionResults.name;
-      const apiContainerPort = dnsResolutionResults.port;
+
+      const randomIndex = Math.floor(
+        Math.random() * dnsResolutionResults.length
+      );
+
+      const apiContainerHostname = dnsResolutionResults[randomIndex].name;
+      const apiContainerPort = dnsResolutionResults[randomIndex].port;
 
       if (!apiContainerHostname || !apiContainerPort) {
         console.log(`DnsResolutionResults for ${API_SERVICE_DOMAIN}: `);
