@@ -44,10 +44,7 @@ io.on("connection", (socket) => {
         await notifyUser(otherUserID, message);
       }
     } catch (error) {
-      console.log("WebSocketServer");
-      console.log("Event: private message");
-      console.log("Error: ", error);
-      console.log("\n");
+      handleError(socket, "private_message", error);
     }
   });
 
@@ -88,12 +85,16 @@ io.on("connection", (socket) => {
         io.to(socket.id).emit("online_status", false);
       }
     } catch (error) {
-      console.log("WebSocketServer");
-      console.log("Event: typing");
-      console.log("Error: ", error);
-      console.log("\n");
+      handleError(socket, "get_online_status", error);
     }
   });
 });
+
+function handleError(socket, eventName, error) {
+  console.log("Event: ", eventName);
+  console.log("Error: ", error);
+
+  socket.emit("internal_server_error");
+}
 
 httpServer.listen(PORT);
