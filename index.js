@@ -2,6 +2,9 @@ const { createServer } = require("http");
 const { Server } = require("socket.io");
 const storeMessage = require("./storeMessage");
 const notifyUser = require("./notifyUser");
+const getApiServerAuthToken = require("./getApiServerAuthToken");
+
+const apiServerAuthToken = getApiServerAuthToken();
 
 let PORT = 80;
 
@@ -35,13 +38,13 @@ io.on("connection", (socket) => {
 
   socket.on("private_message", async (message, otherUserID, room) => {
     try {
-      await storeMessage(message);
+      await storeMessage(message, apiServerAuthToken);
 
       // Other user is chatting with me ?
       if (io.sockets.adapter.rooms.get(room).size > 1) {
         socket.to(room).emit("private_message", message);
       } else {
-        await notifyUser(otherUserID, message);
+        await notifyUser(otherUserID, message, apiServerAuthToken);
       }
     } catch (error) {
       handleError(socket, "private_message", error);
