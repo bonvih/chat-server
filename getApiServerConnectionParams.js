@@ -27,14 +27,19 @@ async function getApiServerConnectionParams() {
       const apiContainerPort = dnsResolutionResults[randomIndex].port;
 
       if (!apiContainerHostname || !apiContainerPort) {
-        console.log(`DnsResolutionResults for ${API_SERVICE_DOMAIN}: `);
-        console.log(dnsResolutionResults);
-
-        throw new Error("Could not get api-container hostname and/or port");
+        throw new Error(
+          "Could not get api-container hostname and/or port: Maybe check dnsResolutionResults"
+        );
       }
 
       HOSTNAME = `${apiContainerHostname}:${apiContainerPort}`;
     } catch (error) {
+      console.log(
+        JSON.stringify({
+          hint: true,
+          throwingFunction: "getApiServerConnectionParams",
+        })
+      );
       throw error;
     }
   }

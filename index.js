@@ -98,8 +98,27 @@ io.on("connection", (socket) => {
 });
 
 function handleError(socket, eventName, error) {
-  console.log("Event: ", eventName);
-  console.log("Error: ", error);
+  if (error.response) {
+    const statusCode = error.response.status;
+
+    console.log(
+      JSON.stringify({
+        event: eventName,
+        reason:
+          statusCode >= 400 && statusCode < 500
+            ? "Reason: probably validation errors"
+            : "",
+        error,
+      })
+    );
+  } else {
+    console.log(
+      JSON.stringify({
+        event: eventName,
+        error,
+      })
+    );
+  }
 
   socket.emit("internal_server_error");
 }
