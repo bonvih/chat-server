@@ -28,73 +28,73 @@ const io = new Server(httpServer, {
 });
 
 io.on("connection", (socket) => {
-  if (!isValidToken(socket.handshake.auth.token)) {
-    socket.disconnect(true);
-  } else {
-    socket.on("set_profile", (profile) => {
-      socket.profile = profile;
-    });
+  // if (!isValidToken(socket.handshake.auth.token)) {
+  //   socket.disconnect(true);
+  // } else {
+  socket.on("set_profile", (profile) => {
+    socket.profile = profile;
+  });
 
-    socket.on("join_room", (room) => {
-      socket.join(room);
-    });
+  socket.on("join_room", (room) => {
+    socket.join(room);
+  });
 
-    socket.on("private_message", async (message, otherUserID, room) => {
-      try {
-        await storeMessage(message, apiServerAuthToken);
+  socket.on("private_message", async (message, otherUserID, room) => {
+    try {
+      await storeMessage(message, apiServerAuthToken);
 
-        // Other user is chatting with me ?
-        if (io.sockets.adapter.rooms.get(room).size > 1) {
-          socket.to(room).emit("private_message", message);
-        } else {
-          await notifyUser(otherUserID, message, apiServerAuthToken);
-        }
-      } catch (error) {
-        handleError(socket, "private_message", error);
+      // Other user is chatting with me ?
+      if (io.sockets.adapter.rooms.get(room).size > 1) {
+        socket.to(room).emit("private_message", message);
+      } else {
+        await notifyUser(otherUserID, message, apiServerAuthToken);
       }
-    });
+    } catch (error) {
+      handleError(socket, "private_message", error);
+    }
+  });
 
-    socket.on("typing", async (typing, room) => {
-      socket.to(room).emit("typing", typing);
-    });
+  socket.on("typing", async (typing, room) => {
+    socket.to(room).emit("typing", typing);
+  });
 
-    socket.on("disconnecting", () => {
-      if (socket.profile) {
-        if (socket.rooms.has(socket.profile.ID.toString())) {
-          socket.rooms.forEach((room) => {
-            socket.to(room).emit("online_status", false);
-          });
-        }
-      }
-    });
-
-    socket.on("online_status", (status) => {
-      socket.rooms.forEach((room) => {
-        socket.to(room).emit("online_status", status);
-      });
-    });
-
-    socket.on("get_online_status", async (profileID) => {
-      try {
-        const sockets = await io.fetchSockets();
-
-        const foundSocket = sockets.find((s) => {
-          if (s.profile) {
-            return s.profile.ID.toString() === profileID;
-          }
-          return false;
+  socket.on("disconnecting", () => {
+    if (socket.profile) {
+      if (socket.rooms.has(socket.profile.ID.toString())) {
+        socket.rooms.forEach((room) => {
+          socket.to(room).emit("online_status", false);
         });
-
-        if (foundSocket) {
-          io.to(socket.id).emit("online_status", true);
-        } else {
-          io.to(socket.id).emit("online_status", false);
-        }
-      } catch (error) {
-        handleError(socket, "get_online_status", error);
       }
+    }
+  });
+
+  socket.on("online_status", (status) => {
+    socket.rooms.forEach((room) => {
+      socket.to(room).emit("online_status", status);
     });
-  }
+  });
+
+  socket.on("get_online_status", async (profileID) => {
+    try {
+      const sockets = await io.fetchSockets();
+
+      const foundSocket = sockets.find((s) => {
+        if (s.profile) {
+          return s.profile.ID.toString() === profileID;
+        }
+        return false;
+      });
+
+      if (foundSocket) {
+        io.to(socket.id).emit("online_status", true);
+      } else {
+        io.to(socket.id).emit("online_status", false);
+      }
+    } catch (error) {
+      handleError(socket, "get_online_status", error);
+    }
+  });
+  // }
 });
 
 function handleError(socket, eventName, error) {
